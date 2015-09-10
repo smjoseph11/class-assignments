@@ -1,0 +1,12 @@
+read LObj Lyle
+write Lyle LObj 10
+read Hal LObj 
+write Lyle HObj 20
+write Hal LObj 200
+write Lyle LObj 200
+read Hal hObj
+read lyle HObj
+read Lyle LObj
+read Lyle HObj
+write Lyle LObj 40
+write HObj Hal 30

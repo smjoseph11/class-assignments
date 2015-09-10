@@ -1,0 +1,73 @@
+9/23, 2p-3:30p, 1:30 hours
+Driver Order and Time Length:
+Max, 30 minutes
+Noah, 30 minutes
+
+9/24, 4p-5p, 1 hour
+Driver Order and Time Length:
+Max, 30 minutes
+Noah, 30 minutes
+
+9/25, 2p-6p, 4 hours
+Driver Order and Time Length:
+Max, 30 minutes
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+
+9/26 4p-6:30p, 2.5 hours
+Driver Order and Time Length:
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+
+9/27 4p-5:30p, 1.5 hours
+Driver Order and Time Length:
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+
+10/2 2p-10p, 8 hours
+Driver Order and Time Length:
+Max, 30 minutes
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+
+10/3 3-7p, 4 hours
+Driver Order and Time Length:
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+Max, 30 minutes
+
+10/4 4-6:30p, 2.5 hours
+Driver Order and Time Length:
+Max, 30 minutes
+Noah, 30 minutes
+Max, 30 minutes
+Noah, 30 minutes
+Max, 30 minutes
+

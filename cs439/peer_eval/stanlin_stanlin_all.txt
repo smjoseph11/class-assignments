@@ -1,0 +1,81 @@
+Fill out and submit the template below for **each** group member with
+which you have worked this _semester_.  This information will
+remain confidential.
+
+Turnin each evaluation using the following turnin command:
+
+turnin -submit ans peer_eval <your_cs_login>_<partner_cs_login>_<proj>.txt
+
+where <proj> is one of the following: shell, threads, user, vm, fs.
+
+If you worked with this person for multiple projects, just turn it in under
+one of the projects, and then list the relevant projects under "Project" below.
+
+***Once you have evaluated each of your group members, use this form
+to evaluate your contribution as compared to your group members.  In the
+comments section, explain your reasoning for your self-evaluation score. 
+Turnin your self-evaluation using the following turnin command:
+
+turnin -submit ans peer_eval <your_cs_login>_<your_cs_login>_all.txt
+
+
+****Evaluations are due by 12/9/2013 at 11:59a.****
+
+[Please delete above text before submitting the template.]
+
+                    +---------------------------+
+                    |           CS 439          |
+		    |      Partner Evaluation	|
+		    +---------------------------+
+
+---- Your Name ----
+
+Name: Stanlin Joseph
+EID: sj9557
+CS login: stanlin
+Email: smjoseph11@utexas.edu
+Unique Number: 53895
+
+---- Group Member----
+
+Name:
+EID:
+CS login:
+Email:
+Unique Number:
+
+---- Projects ----
+
+Projects on which you worked with this person:
+
+---- Evaluation ----
+
+Using the following scale, evaluate your group member for the given
+qualities.
+
+1 (rarely/never)           
+2 (occasionally/sometimes)          
+3 (all/most of the time) 
+
+2____ did fair share of work 
+3____ was cooperative/did agreed upon task 
+3____ contributed to ideas/planning 
+3____ made him or herself available to meet
+3____ was positive, helpful 
+3____ contributed to overall project success 
+
+
+What grade would you give this person on his or her performance as
+a group member (A+, A, A-, B+, B, B-, ...)? 
+
+A
+
+Comments:
+
+I think I contributed a fair amount. I did not do the most amount of programming, but I was there for nearly every meeting and contributed a lot conceptually. I also drove occasionaly. 
+
+
+
+
+
+

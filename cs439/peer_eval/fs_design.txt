@@ -1,0 +1,292 @@
+                    +-------------------------+
+                    |           CS 439        |
+                    | PROJECT 4: FILE SYSTEMS |
+                    |      DESIGN DOCUMENT    |
+                    +-------------------------+
+
+****EACH student submits a (unique) design document.****
+
+---- Name ----
+
+>> Fill your name, UT EID, CS login, email address, and unique number:
+
+Name:Stanlin Joseph
+EID2:sj9557
+CS login:stanlin
+Email:smjoseph11@utexas.edu
+Unique Number:53895
+
+Slip days used on this project: 2
+
+---- GROUP ----
+
+>> Fill the names, UT EIDs, CS logins, email addresses, and unique numbers
+>> of your group members.  Also fill in each person's ranking on the 
+>> partner evaluation scale, as determined by you.
+
+Name1:Noah Gregg
+EID1:nbg322
+CS login:khrimson
+Email:blaster.rifle@gmail.com
+Unique Number:53895
+Ranking (scale below):Excellent
+
+Name2: Even Hvatum
+EID3: eah2322
+CS login: ehvatum
+Email: ehvatum@utexas.edu
+Unique Number: 53900
+Ranking (scale below):Excellent
+
+Name3: Max Timkovich
+EID4: mt25825
+CS login: mtimkvch
+Email: mtimkvch@cs.utexas.edu
+Unique Number: 53895
+Ranking (scale below):Excellent
+
+---- PARTNER EVALUATION SCALE ----
+
+>> Excellent: Consistently went above and beyond - tutored others, carried
+>> more than his/her fair share of the load.
+
+>> Very Good: Consistently did what he/she was supposed to do, very well
+>> prepared and cooperative.
+
+>> Satisfactory: Usually did what he/she was supposed to do, minimally
+>> prepared and cooperative.
+
+>> Marginal: Sometimes failed to show up, rarely prepared.
+
+>> Deficient: Often failed to show up, rarely prepared.
+
+>> Unsatisfactory: Consistently failed to show up, unprepared.
+
+>> Superficial: Practically no participation.
+
+>> No Show: No participation at all.
+
+
+
+
+---- PRELIMINARIES ----
+
+>> If you have any preliminary comments on your submission, notes for the
+>> TAs, or extra credit, please give them here.
+
+>> Please cite any offline or online sources you consulted while
+>> preparing your submission, other than the Pintos documentation, course
+>> text, lecture notes, and course staff.
+
+		     INDEXED AND EXTENSIBLE FILES
+		     ============================
+
+---- DATA STRUCTURES ----
+
+>> A1: Copy here the declaration of each new or changed `struct' or
+>> `struct' member, global or static variable, `typedef', or
+>> enumeration.  Identify the purpose of each in 25 words or less.
+
+#define MASTER_SIZE 114 		/* This is the number of direct blocks allowed in the inode_disk directly */
+#define IND_BLOCK_SIZE 128 		/* This is the size of the indirect block array (i.e. how many indices can be stored per indirect level*/
+#define IND_NUM_BLOCKS 7 		/* This is the number of first_level indirect blocks contained in inode_disk itself.*/ 
+
+/*Indirect block. BLOCK_SECTOR_SIZE bytes big */
+struct lv1_ind_block {
+    block_sector_t direct_block[IND_BLOCK_SIZE];   /* Sectors of data directly on disk per level of indirection*/
+};
+/* On-disk inode.
+   Must be exactly BLOCK_SECTOR_SIZE bytes long. */
+struct inode_disk
+  {
+    off_t length;                       /* File size in bytes */
+    off_t new_length; 			/* File size in bytes while writing which must be updated when writing to prevent recursive writes from occuring*/
+    block_sector_t inode_disk_number;   /* inode_disk's sector number*/
+    block_sector_t lv1_ind_block[IND_NUM_BLOCKS];       /* Sector of first level indirect block */
+    block_sector_t 1v2_ind_block[IND_NUM_BLOCKS];       /* Sector of second level indirect_block*/
+    block_sector_t direct_block[MASTER_SIZE];   /* Sectors of data */
+    int is_dir; 				/* Tells whether the inode is a directory or file*/
+    int dir_pos; 				/* The current position in the directory(used for readdir)*/
+    unsigned magic;                     /* Magic number */
+  };
+
+/* In-memory inode. */
+struct inode 
+  {
+    struct list_elem elem;              /* Element in inode list. */
+    block_sector_t sector;              /* Sector number of disk location. */
+    int open_cnt;                       /* Number of openers. */
+    bool removed;                       /* True if deleted, false otherwise. */
+    struct lock extend_lock; 		/* This lock synchronizes extending files*/
+    int deny_write_cnt;                 /* 0: writes ok, >0: deny writes. */
+    struct inode_disk data;             /* Inode content. */
+  };
+
+
+/* DEBUG struct */
+struct lv2_ind_block {
+    block_sector_t lv1_ind_block[IND_BLOCK_SIZE];  /* Sectors of first level indirect blocks */
+};
+
+
+
+>> A2: What is the maximum size of a file supported by your inode
+>> structure?  Show your work.
+((114+(7×128) + (128×128))×512)÷(1024 * 1024) = 8.49 MB. 
+---- SYNCHRONIZATION ----
+
+>> A3: Explain how your code avoids a race if two processes attempt to
+>> extend a file at the same time.
+
+There is an extend_lock which only allows one file to enter the inode_extend_file code at a time. The way it works is right before the inode_extend_file is called, the lock is acquired. The lock is only released after the file has successfully extended or failed to extend. There is an extend lock per inode, so once an inode stops extending, the next inode can acquire and begin.  
+
+>> A4: Suppose processes A and B both have file F open, both
+>> positioned at end-of-file.  If A reads and B writes F at the same
+>> time, A may read all, part, or none of what B writes.  However, A
+>> may not read data other than what B writes, e.g. if B writes
+>> nonzero data, A is not allowed to see all zeros.  Explain how your
+>> code avoids this race.
+
+We only update the length of the file after everything has been written and updated to disk. In this way, if B writes past the end of file and A is reading at the end of file, if A begins reading before B is done writing, it does not go past the end of file and assumes there is nothing left to be read. 
+
+>> A5: Explain how your synchronization design provides "fairness".
+>> File access is "fair" if readers cannot indefinitely block writers
+>> or vice versa.  That is, many processes reading from a file cannot
+>> prevent forever another process from writing the file, and many
+>> processes writing to a file cannot prevent another process forever
+>> from reading the file.
+
+Since the length of the file is only updated after the write is completed, as writes occur, no reads are blocked, they are allowed to read up to the old length of the file/previously written text. A read also never blocks a write as it can read as a file is being written. 
+
+---- RATIONALE ----
+
+>> A6: Is your inode structure a multilevel index?  If so, why did you
+>> choose this particular combination of direct, indirect, and doubly
+>> indirect blocks?  If not, why did you choose an alternative inode
+>> structure, and what advantages and disadvantages does your
+>> structure have, compared to a multilevel index?
+
+Yes, our inode structure is a multi-level index. A mult-level index allows you to allocate the number of sectors you need dynamically. In this way, only the exact amount of space needed per file will be used. This allows massive and small files to be written. Also, multi-level indexing allows us to not do continuous allocation as you can identify which sectors each file contains in the index. it also allows files to grow as large as space allows.
+
+			    SUBDIRECTORIES
+			    ==============
+
+---- DATA STRUCTURES ----
+
+>> B1: Copy here the declaration of each new or changed `struct' or
+>> `struct' member, global or static variable, `typedef', or
+>> enumeration.  Identify the purpose of each in 25 words or less.
+/* On-disk inode.
+   Must be exactly BLOCK_SECTOR_SIZE bytes long. */
+struct inode_disk
+  {
+    off_t length;                       /* File size in bytes */
+    off_t new_length;
+    block_sector_t inode_disk_number;   /* Where we are on disk */
+    block_sector_t lv1_ind_block[IND_NUM_BLOCKS];       /* Sector of first level indirect block */
+    block_sector_t 1v2_ind_block[IND_NUM_BLOCKS];       /* Sector of second level*/
+    block_sector_t direct_block[MASTER_SIZE];   /* Sectors of data */
+    int is_dir; 				/* Tells whether the inode is a directory or file*/
+    int dir_pos; 				/* The current position in the directory(used for readdir)*/
+    unsigned magic;                     /* Magic number */
+  };
+struct dir 
+{
+  struct inode *inode;                /* Backing store. */
+  off_t pos;                          /* Current position. */
+  struct lock dir_lock; 	      /* Synchronization for directories*/
+};
+
+/* A single directory entry. */
+struct dir_entry 
+{
+  block_sector_t inode_sector;        /* Sector number of header. */
+  char name[NAME_MAX + 1];            /* Null terminated file name. */
+  bool in_use;                        /* In use or free */
+};
+struct thread
+  {
+    /* Owned by thread.c. */
+    tid_t tid;                          /* Thread identifier. */
+    enum thread_status status;          /* Thread state. */
+    char name[16];                      /* Name (for debugging purposes). */
+    uint8_t *stack;                     /* Saved stack pointer. */
+    int priority;                       /* Priority. */
+    struct list_elem allelem;           /* List element for all threads list. */
+    struct semaphore wait_on_child_sema;          /* Waiting for child to be dead*/
+    struct semaphore child_can_die_sema;          /* Let child exit after being reaped */
+    struct semaphore wait_on_child_load_sema;     /* Waiting for child to load */
+    struct thread *parent;                        /* Parent, if exists */
+    int exit_status;                              /* Stores thread's exit status or -1 */
+    bool is_dead;                                 /* Thread is a zombie */
+    struct file *file_owner[FILES_MAX];           /* Files open by thread*/
+    struct file *file;                            /* Thread's executable file */
+    int files_open;                               /* Number of files open by thread */
+    bool child_valid;                             /* Stores if child loaded successfully */
+    /* Shared between thread.c and synch.c. */     
+    struct list_elem elem;              /* List element. */
+
+    block_sector_t working_directory;                /* The current working directory's sector */
+
+#ifdef USERPROG
+    /* Owned by userprog/process.c. */
+    uint32_t *pagedir;                  /* Page directory. */
+#endif
+
+    /* Owned by thread.c. */
+    unsigned magic;                     /* Detects stack overflow. */
+  };
+
+---- ALGORITHMS ----
+
+>> B2: Describe your code for traversing a user-specified path.  How
+>> do traversals of absolute and relative paths differ?
+
+To traverse a user-specified path, we first identify whether the path is relative or absolute. If it is absolute, it begins with a slash. If it is relative it does not. From there, we have a current_directory variable which is set via dir_open of the first word in the path(delimited by '/'). This loops through until the last word is reached and current_directory is set to that word. current_director is then set to the current_working_directory in struct thread. At this point we have traversed into the user-specified path. The only difference between an absolute or relative path is that we have a check to see if the path begins with a /. If so, we set the current_directory to root, remove the / from the path and traverse the relative path.  
+
+---- SYNCHRONIZATION ----
+
+>> B4: How do you prevent races on directory entries?  For example,
+>> only one of two simultaneous attempts to remove a single file
+>> should succeed, as should only one of two simultaneous attempts to
+>> create a file with the same name, and so on.
+
+We have a dir_lock which prevents simultaneous attempts to access dir_lookup, dir_add, dir_remove, and dir_readdr. In this way, only one process can enter any modification or reading/searching for a file in a directory. So, if two processes attempt to remove or add a file, only one process will be allowed to perform that action, while only one process can lookup to see if that file exists or not. This prevents two processes from deleting or adding a file as one process which has deleted or added will be seen in lookup as such by another process. 
+
+>> B5: Does your implementation allow a directory to be removed if it
+>> is open by a process or if it is in use as a process's current
+>> working directory?  If so, what happens to that process's future
+>> file system operations?  If not, how do you prevent it?
+
+Yes, we allow a directory to be remove d if it is open. If the process attempts to create or open any new files, we simply return as this operation is not allowed. This means in the syscalls we have check if inode->removed is set to true. If so, we do not allow the process to open or create. This prevents the file from opening or creating in a directory that doesn't exist. 
+
+---- RATIONALE ----
+
+>> B6: Explain why you chose to represent the current directory of a
+>> process the way you did.
+
+We set the current_directory as a block_sector_t in the thread struct. In this way, whenever a process is executed, setting the current_directory becomes as simple as finding the directory where you executed the program and setting its sector to the current_directory's sector. Also, whenever the process exits, the directory can be closed easily from the sector.  
+
+			   SURVEY QUESTIONS
+			   ================
+
+Answering these questions is optional, but it will help us improve the
+course in future quarters.  Feel free to tell us anything you
+want--these questions are just to spur your thoughts.  You may also
+choose to respond anonymously in the course evaluations at the end of
+the quarter.
+
+>> In your opinion, was this assignment, or any one of the three problems
+>> in it, too easy or too hard?  Did it take too long or too little time?
+
+>> Did you find that working on a particular part of the assignment gave
+>> you greater insight into some aspect of OS design?
+
+>> Is there some particular fact or hint we should give students in
+>> future quarters to help them solve the problems?  Conversely, did you
+>> find any of our guidance to be misleading?
+
+>> Do you have any suggestions for the TAs to more effectively assist
+>> students in future quarters?
+
+>> Any other comments?

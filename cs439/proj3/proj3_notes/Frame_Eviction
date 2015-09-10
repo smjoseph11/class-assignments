@@ -1,0 +1,15 @@
+Noah Gregg
+10/31/2013
+
+Figure out who to swap out when you're full but more memory needs to be accessed.
+
+Pick an algorithm, such as second chance or additional reference bit, or something else from section 9.4 of the textbook. (clock?)
+
+Select a frame to swap out
+-Get the matching page table entry
+-Use a pagedir function to get the hardware dirty bit and use that.
+
+Send the swapped out frame to the swap disc.
+-Synchronize so that you can't change the frame during swapping.
+
+Update the supplementary page table and the hardware page table (using pagedir functions) as needed.

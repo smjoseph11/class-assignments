@@ -1,0 +1,68 @@
+(*STRING and Identifiers TEST CASES*)
+"test"""
+test"
+"test"
+"
+"   hello world!/t\n\b"
+"hello world!/t\n\b"
+"   hello 
+world!/t\n\
+"
+---
+"readstring readint lambda
+"   hello world!/t\n\b"
+"hello world!/t\n\b"
+"   hello 
+world!/t\n\
+"
+---
+id@1
+Id2
+iD3
+Id4
+iD5
+4hello
+(*********************)
+(*COMMENTS TEST CASES*)
+  (*everything should be good*)
+ (*(*(*(*h(*e*)llo \t\t\t\ 
+         how are you? (*hi!*)(*hey!*)*)*)*)*)
+ ---
+(*should have unmatched symbol *)  
+(* (*(*(*(*h(*e*)llo \t\t\t\ 
+         how are you? (*hi!*)(*hey!*)*)*)*)*)
+ (*(*(*(*h(*e*)llo \t\t\t\ 
+         how are you? (*hi!*)(*hey!*)*)*)*)*)*)*)
+---
+(*(**)
+---
+
+ (*(*(*(*h(*e*)llo \t\t\t\ 
+         how are you? (*hi!*)(*hey!*)*)*)*)*)
+ (*(*(*(*h(*e*)llo \t\t\t\ 
+         how are you? (*hi!*)(*hey!*)*)*)*)*)
+(************************************)
+(*INTEGER OPERATIONS AND LISTS TESTS*)
+---
+hello! = 2.2/234
+2=2
+3>4
+3>=4
+4<5
+5<=5
+4<>5
+!(2@3@4)
+!2+3*4/5-3-4)
+---
+withletplusminusnilisnilreadintreadstring
+WIThLetPLUsMinUSNIl
+ISnil
+LAmbda
+IN
+ReadINT
+REadString(*keywords*)
+---
+! !2 !(2@3) 2!#!(*HD*)
+23##TL#(*TL*)
+---
+()()()()()()()(((((((((())))))))))(((((hello)))((((hi)() (*parens tests)

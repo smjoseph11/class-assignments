@@ -1,0 +1,293 @@
+			+--------------------+
+			|        CS 439      |
+			| PROJECT 1: THREADS |
+			|   DESIGN DOCUMENT  |
+			+--------------------+
+
+****EACH student submits a (unique) design document.****
+
+---- Name ----
+
+>> Fill your name, UT EID, CS login, email address, and unique number:
+
+Name: Max Timkovich
+EID: mt25825
+CS login: mtimkvch
+Email: mtimkvch@cs.utexas.edu
+Unique Number: 53895
+
+
+Slip days used on this project: 0
+
+---- GROUP ----
+
+>> Fill the names, UT EIDs, CS logins, email addresses, and unique numbers
+>> of your group members.  Also fill in each person's ranking on the 
+>> partner evaluation scale, as determined by you.
+
+Name1: Noah Gregg
+EID1: nbg322
+CS login: khrimson
+Email: blaster.rifle@gmail.com
+Unique Number: 53895
+Ranking (scale below): Excellent
+
+Name2:
+EID2:
+CS login:
+Email:
+Unique Number:
+Ranking (scale below):
+
+Name3:
+EID2:
+CS login:
+Email:
+Unique Number:
+Ranking (scale below):
+
+
+---- PARTNER EVALUATION SCALE ----
+
+>> Excellent: Consistently went above and beyond - tutored others, carried
+>> more than his/her fair share of the load.
+
+>> Very Good: Consistently did what he/she was supposed to do, very well
+>> prepared and cooperative.
+
+>> Satisfactory: Usually did what he/she was supposed to do, minimally
+>> prepared and cooperative.
+
+>> Marginal: Sometimes failed to show up, rarely prepared.
+
+>> Deficient: Often failed to show up, rarely prepared.
+
+>> Unsatisfactory: Consistently failed to show up, unprepared.
+
+>> Superficial: Practically no participation.
+
+>> No Show: No participation at all.
+
+
+---- PRELIMINARIES ----
+
+>> If you have any preliminary comments on your submission, notes for the
+>> TAs, or extra credit, please give them here.
+
+>> Please cite any offline or online sources you consulted while
+>> preparing your submission, other than the Pintos documentation, course
+>> text, lecture notes, and course staff.
+
+			     ALARM CLOCK
+			     ===========
+
+---- DATA STRUCTURES ----
+
+>> A1: Copy here the declaration of each new or changed `struct' or
+>> `struct' member, global or static variable, `typedef', or
+>> enumeration.  Identify the purpose of each in 25 words or less.
+
+/* We added some members to the thread struct */
+struct thread { 
+
+    /* We gave each thread its own semaphore so it can block and unblock itself */
+    struct semaphore sema; 
+
+    /* Each thread contains the number of ticks until it should become unblocked */
+    int64_t ticks; 
+}
+
+
+
+---- ALGORITHMS ----
+
+>> A2: Briefly describe what happens in a call to timer_sleep(),
+>> including the effects of the timer interrupt handler.
+
+Set the current thread's ticks value to the parameter ticks. If ticks is less than 0, then set thread ticks to 0. Then we have the thread's semaphore down to put the thread to sleep. timer_interrupt decrements the thread's ticks value every time it is called, and if ticks is equal to 0, it ups the thread's semaphore.
+
+>> A3: What steps are taken to minimize the amount of time spent in
+>> the timer interrupt handler?
+
+We do not enable and disable interrupts each time it is run.
+
+---- SYNCHRONIZATION ----
+
+>> A4: How are race conditions avoided when multiple threads call
+>> timer_sleep() simultaneously?
+
+Each individual thread has its own semaphore.
+
+>> A5: How are race conditions avoided when a timer interrupt occurs
+>> during a call to timer_sleep()?
+
+We are using a semaphore, which maintains history. So it does not matter if the thread semaphore ups before timer_sleep() can call sema_down();
+
+---- RATIONALE ----
+
+>> A6: Why did you choose this design?  In what ways is it superior to
+>> another design you considered?
+
+Our current design gives each thread its own semaphore to deal with blocking and unblocking. We iterate over the all_list to find the threads who had a value of ticks greater than 0, and decrement the thread's ticks value accordingly.
+
+Originally, we tried using a global linked list to store all the threads that were currently sleeping. We ran into a multitude of problems with the linked list, not the mention that we had to lock everytime we modified it. Our final solution was much simplier than our initial attempt.
+
+			 PRIORITY SCHEDULING
+			 ===================
+
+---- DATA STRUCTURES ----
+
+>> B1: Copy here the declaration of each new or changed `struct' or
+>> `struct' member, global or static variable, `typedef', or
+>> enumeration.  Identify the purpose of each in 25 words or less.
+
+struct thread
+{
+    /* Added a base_priority, which is the priority of the thread without donation in effect */
+    int base_priority;
+
+    /* A pointer to the thread that is holding the lock we want */
+    struct thread *wait_thread;
+};
+
+struct semaphore_elem 
+{
+    /* Gave each semaphore_elem a priority, which is only needed for monitors */
+    int priority;
+};
+
+>> B2: Explain the data structure used to track priority donation.
+>> Use ASCII art to diagram a nested donation.  (Alternately, submit a
+>> .png file.)
+
+We have a wait_thread pointer which points to the thread we are waiting on, which acts as a singly linked list. We also use the all_list to find all threads that are waiting on the same wait_thread.
+
++--------+    +--------+    +--------+    +----+
+|Thread A| -> |Thread B| -> |Thread C| -> |NULL|
++--------+    +--------+    +--------+    +----+
+
+Thread A priority: 60
+Thread B priority: 50
+Thread C priority: 30
+
+Thread A has a wait thread of Thread B. So it donates its priority to Thread B. Thread B has a wait thread of Thread C, so it donates its new priority to Thread C. Thread C has a wait thread of NULL, as it is the lock holder. 
+
+---- ALGORITHMS ----
+
+>> B3: How do you ensure that the highest priority thread waiting for
+>> a lock, semaphore, or condition variable wakes up first?
+
+We iterate through the waiters list contained in the semaphore, and wake up the one with the highest priority.
+
+>> B4: Describe the sequence of events when a call to lock_acquire()
+>> causes a priority donation.  How is nested donation handled?
+
+If the hold is currently not being held by a thread, sema_down the lock semaphore. Otherwise, set the current thread's wait_thread to the thread holding the lock. Get the wait_thread of the thread you are waiting on, and if the current thread's priority is greater than that thread, set it's priority to your priority. Keep doing this until the thread's wait_thread is null.
+
+
+>> B5: Describe the sequence of events when lock_release() is called
+>> on a lock that a higher-priority thread is waiting for.
+
+Go through the waiters list and find the thread with the highest priority, and set its wait_thread to NULL. Change the rest of the threads in waiters to have the max priority thread of the lock as their wait_thread. Next, go the the all_list and get the highest donated priority for this thread. Set the current lock holder to NULL, sema_up, set the current thread's priority to the max donated priority, and yield the thread.
+
+---- SYNCHRONIZATION ----
+
+>> B6: Describe a potential race in thread_set_priority() and explain
+>> how your implementation avoids it.  Can you use a lock to avoid
+>> this race?
+
+If you increase the priority, then nothing is effected. If you decrease the priority, set_thread_priority() yields the thread to avoid a race condition.
+
+You can't use a lock, as priority donation would mess with setting the priority of threads.
+
+---- RATIONALE ----
+
+>> B7: Why did you choose this design?  In what ways is it superior to
+>> another design you considered?
+
+We used wait_thread so the thread knows what thread currently holds the lock. This solution is relatively simple to understand and implement, and was far more managable than the linked list idea we used before.
+
+Originally, we gave each threads a linked list containing all the threads it was waitingo on. Like the timer problem, this turned out to be ungainly and overly complicated.
+
+		  ADVANCED SCHEDULER (Extra Credit)
+		  =================================
+
+---- DATA STRUCTURES ----
+
+>> C1: Copy here the declaration of each new or changed `struct' or
+>> `struct' member, global or static variable, `typedef', or
+>> enumeration.  Identify the purpose of each in 25 words or less.
+
+---- ALGORITHMS ----
+
+>> C2: Suppose threads A, B, and C have nice values 0, 1, and 2.  Each
+>> has a recent_cpu value of 0.  Fill in the table below showing the
+>> scheduling decision and the priority and recent_cpu values for each
+>> thread after each given number of timer ticks:
+
+timer  recent_cpu    priority   thread
+ticks   A   B   C   A   B   C   to run
+-----  --  --  --  --  --  --   ------
+ 0
+ 4
+ 8
+12
+16
+20
+24
+28
+32
+36
+
+>> C3: Did any ambiguities in the scheduler specification make values
+>> in the table uncertain?  If so, what rule did you use to resolve
+>> them?  Does this match the behavior of your scheduler?
+
+>> C4: How is the way you divided the cost of scheduling between code
+>> inside and outside interrupt context likely to affect performance?
+
+---- RATIONALE ----
+
+>> C5: Briefly critique your design, pointing out advantages and
+>> disadvantages in your design choices.  If you were to have extra
+>> time to work on this part of the project, how might you choose to
+>> refine or improve your design?
+
+>> C6: The assignment explains arithmetic for fixed-point math in
+>> detail, but it leaves it open to you to implement it.  Why did you
+>> decide to implement it the way you did?  If you created an
+>> abstraction layer for fixed-point math, that is, an abstract data
+>> type and/or a set of functions or macros to manipulate fixed-point
+>> numbers, why did you do so?  If not, why not?
+
+			   SURVEY QUESTIONS
+			   ================
+
+Answering these questions is optional, but it will help us improve the
+course in future semesters.  Feel free to tell us anything you
+want--these questions are just to spur your thoughts.  You may also
+choose to respond anonymously in the course evaluations at the end of
+the semester.
+
+>> In your opinion, was this assignment, or any one of the two problems
+>> in it, too easy or too hard?  Did it take too long or too little time?
+
+The difficulty of the project is about right.
+
+I think this particular project took too much time. Noah and I spent about 4 hours a day for two weeks working on completing this project, which I'm not sure is normal. 
+
+>> Did you find that working on a particular part of the assignment gave
+>> you greater insight into some aspect of OS design?
+
+I think I'm more comfortable programming with threads now.
+
+>> Is there some particular fact or hint we should give students in
+>> future semesters to help them solve the problems?  Conversely, did you
+>> find any of our guidance to be misleading?
+
+Should *heavily* dissuade students from creating their on linked lists. It caused us to waste a whole week of time trying to implement our project using them.
+
+>> Do you have any suggestions for the TAs to more effectively assist
+>> students, either for future semesters or the remaining projects?
+
+>> Any other comments?

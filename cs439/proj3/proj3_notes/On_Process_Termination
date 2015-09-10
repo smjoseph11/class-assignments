@@ -1,0 +1,10 @@
+Noah Gregg
+10/31/2013
+
+
+Destroy your supplementary page table (the table entry? Does each process have its own SPT?)
+Free your frames (and their frame table entries)
+Do the same with swap slots, if any.
+Close all your files: If a file is mmapped (?) and dirty, write the dirty mmapped pages from memory back to the file disk.
+
+Possibly: If written to, write it through to disc.

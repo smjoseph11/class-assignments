@@ -1,0 +1,9 @@
+Process Waiting Solution
+
+Let's store all the information in the parent's thread struct.
+This includes a list of our children's pids and their current statuses, as well as what we should be returning. We don't return anything if our child's status is alive, and these statuses are updated whenever a thread calls exit or whenever we shut down a thread due an exception or kill signal or something else. If the parent dies, these statuses are simply not updated anymore because we don't care about them. Use a lock for accessing the child list to avoid race cases. Furthermore, if wait finds all children alive, it should set a 'waiting_on_child' variable to true or something and then block itself, so that other things can go through the lock. This way, since it probably needs to check the child list in a while loop, it won't keep the lock forever. Finally, add in a parent id to every thread so that when we kill it we know what thread's child list to modify.
+
+Cases to worry about:
+1. Race cases. What happens if our process dies and tries to modify our child list while we're checking it?
+SOLVED
+

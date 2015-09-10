@@ -1,0 +1,2 @@
+Run-time error in expression ("duck" >= "fish")
+Binop >= cannot be applied to strings

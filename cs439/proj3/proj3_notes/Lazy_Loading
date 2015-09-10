@@ -1,0 +1,7 @@
+Noah Gregg
+10/31/2013
+
+Loading executables:
+Allocate a frame and load a page of the process from file disk into physical memory. (VAS to physical memory (map to frame))
+
+Right now it loads all pages of the process into physical memory, but we want it to only setup the stack at first, then handle page faults. Figure out if the page is in the executable file and therefore hasn't been loaded yet or if it's in the swap disc because it's been swapped out. You will need to load the corresponding page from wherever it is. The page fault handler needs to go back to the process after loading the page.

@@ -1,0 +1,22 @@
+Noah Gregg
+10/31/2013
+
+E-how to 'make a frame table'
+
+We need it to keep track of the VAS pages mapped to physical memory
+
+Each frame should know a few things.
+1. The thread it belongs to (or NULL).
+2. Page table entry mapped to it (or NULL).
+3. Status booleans for:
+I. If it's mapped or not.
+II. If it's pinned or not.*1
+III+. ???
+IV. Profit!
+
+Implement our own frame allocator.
+Look at init.c and palloc.c and understand them. They are useful.
+We don't have to use a hash table. (Maybe we can anyway?)
+
+Why do we care about this bullshit?
+Allocate physical memory and figure out who to swap when full.

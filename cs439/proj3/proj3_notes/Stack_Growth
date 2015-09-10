@@ -1,0 +1,12 @@
+Noah Gregg
+10/31/2013
+
+Page fault happens when we exceed the stack size limit. We need to catch the stack pointer from the interrupt frame in the page fault handler, check if the faulted address is 'right below' the current end of the stack.
+-It might be for lazy load or stack growth (What's the difference?)
+-Don't consider fault addresses less than esp - 32.
+Either calculate how many additional pages need to be allocated to the stack, OR
+Just allocate the faulting page (sounds easier).
+
+Impose limit on stack size and call it STACK_SIZE.
+-Make sure the stack won't collide with the heap.
+

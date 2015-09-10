@@ -1,0 +1,8 @@
+inode.c:
+    - inode_write_at()
+    - inode_read_at()
+    - struct inode_disk
+
+free-map.c:
+    - free_map_allocate()
+	* Allocate noncontiguously

@@ -1,0 +1,387 @@
+****************** AST ******************
+Let _
+VAL
+	UNOP: print
+		STRING: "how many assignments are there?"
+BODY
+	Let assignmentNo
+	VAL
+		readInt
+	BODY
+		Let createList
+		VAL
+			Lambda
+			Formal:
+				len
+			Body:
+				BRANCH
+				Predicate:
+					BINOP: =
+						len
+						INT: 0
+				Then branch:
+					INT: 0
+				Else Branch:
+					BINOP: @
+						INT: 0
+						EXP LIST
+							createList
+							BINOP: -
+								len
+								INT: 1
+		BODY
+			Let lenList
+			VAL
+				EXP LIST
+					createList
+					BINOP: -
+						assignmentNo
+						INT: 1
+			BODY
+				Let gradeStr
+				VAL
+					STRING: "what are the respective grades for each assignment?"
+				BODY
+					Let _
+					VAL
+						UNOP: print
+							gradeStr
+					BODY
+						Let repeat
+						VAL
+							Lambda
+							Formal:
+								weight
+							Body:
+								BRANCH
+								Predicate:
+									BINOP: &
+										BINOP: >=
+											weight
+											INT: 0
+										BINOP: <=
+											weight
+											INT: 100
+								Then branch:
+									weight
+								Else Branch:
+									Let _
+									VAL
+										UNOP: print
+											STRING: "input out of range"
+									BODY
+										Let x
+										VAL
+											readInt
+										BODY
+											EXP LIST
+												repeat
+												x
+						BODY
+							Let weights
+							VAL
+								Lambda
+								Formal:
+									list
+								Body:
+									Let f
+									VAL
+										readInt
+									BODY
+										BRANCH
+										Predicate:
+											UNOP: IsNil
+												UNOP: #
+													list
+										Then branch:
+											BINOP: +
+												UNOP: !
+													list
+												EXP LIST
+													repeat
+													f
+										Else Branch:
+											Let hd
+											VAL
+												UNOP: !
+													list
+											BODY
+												Let tl
+												VAL
+													UNOP: #
+														list
+												BODY
+													Let weight
+													VAL
+														EXP LIST
+															repeat
+															f
+													BODY
+														BINOP: @
+															BINOP: +
+																hd
+																weight
+															EXP LIST
+																weights
+																tl
+							BODY
+								Let weightsList
+								VAL
+									EXP LIST
+										weights
+										lenList
+								BODY
+									Let addListValues
+									VAL
+										Lambda
+										Formal:
+											list
+										Body:
+											BRANCH
+											Predicate:
+												UNOP: IsNil
+													UNOP: #
+														list
+											Then branch:
+												UNOP: !
+													list
+											Else Branch:
+												Let hd
+												VAL
+													UNOP: !
+														list
+												BODY
+													Let tl
+													VAL
+														UNOP: #
+															list
+													BODY
+														BINOP: +
+															hd
+															EXP LIST
+																addListValues
+																tl
+									BODY
+										Let totalWeight
+										VAL
+											EXP LIST
+												addListValues
+												weightsList
+										BODY
+											BRANCH
+											Predicate:
+												BINOP: <>
+													totalWeight
+													INT: 100
+											Then branch:
+												UNOP: print
+													STRING: "Weights do not add up to 100"
+											Else Branch:
+												Let gradeEntries
+												VAL
+													Lambda
+													Formal:
+														list
+													Body:
+														Let f
+														VAL
+															readInt
+														BODY
+															BRANCH
+															Predicate:
+																UNOP: IsNil
+																	UNOP: #
+																		list
+															Then branch:
+																BINOP: *
+																	UNOP: !
+																		list
+																	EXP LIST
+																		repeat
+																		f
+															Else Branch:
+																Let hd
+																VAL
+																	UNOP: !
+																		list
+																BODY
+																	Let tl
+																	VAL
+																		UNOP: #
+																			list
+																	BODY
+																		Let grade
+																		VAL
+																			EXP LIST
+																				repeat
+																				f
+																		BODY
+																			BINOP: +
+																				BINOP: *
+																					hd
+																					grade
+																				EXP LIST
+																					gradeEntries
+																					tl
+												BODY
+													Let addToList
+													VAL
+														Lambda
+														Formal:
+															list
+														Body:
+															Lambda
+															Formal:
+																elem
+															Body:
+																Let li
+																VAL
+																	list
+																BODY
+																	BRANCH
+																	Predicate:
+																		UNOP: IsNil
+																			list
+																	Then branch:
+																		elem
+																	Else Branch:
+																		Let hd
+																		VAL
+																			UNOP: !
+																				list
+																		BODY
+																			Let tl
+																			VAL
+																				UNOP: #
+																					list
+																			BODY
+																				BRANCH
+																				Predicate:
+																					BINOP: <
+																						UNOP: #
+																							hd
+																						UNOP: #
+																							elem
+																				Then branch:
+																					BINOP: @
+																						elem
+																						li
+																				Else Branch:
+																					BINOP: @
+																						hd
+																						EXP LIST
+																							addToList
+																							tl
+																							elem
+													BODY
+														Let grlist
+														VAL
+															BINOP: @
+																STRING: "test"
+																INT: 1
+														BODY
+															Let studentAverages
+															VAL
+																Lambda
+																Formal:
+																	list
+																Body:
+																	Let _
+																	VAL
+																		UNOP: print
+																			STRING: "Enter student's name: "
+																	BODY
+																		Let name
+																		VAL
+																			readString
+																		BODY
+																			Let _
+																			VAL
+																				UNOP: print
+																					STRING: "Enter student's grades: "
+																			BODY
+																				Let ga
+																				VAL
+																					BINOP: /
+																						EXP LIST
+																							gradeEntries
+																							list
+																						INT: 100
+																				BODY
+																					Let _
+																					VAL
+																						UNOP: print
+																							STRING: "Would you like to enter another student's grades?"
+																					BODY
+																						Let strRead
+																						VAL
+																							readString
+																						BODY
+																							BRANCH
+																							Predicate:
+																								BINOP: |
+																									BINOP: =
+																										strRead
+																										STRING: "y"
+																									BINOP: =
+																										strRead
+																										STRING: "Y"
+																							Then branch:
+																								BINOP: @
+																									name
+																									BINOP: @
+																										ga
+																										EXP LIST
+																											studentAverages
+																											weightsList
+																							Else Branch:
+																								BINOP: @
+																									name
+																									ga
+															BODY
+																Let prList
+																VAL
+																	EXP LIST
+																		studentAverages
+																		weightsList
+																BODY
+																	Let printl
+																	VAL
+																		Lambda
+																		Formal:
+																			list
+																		Body:
+																			BRANCH
+																			Predicate:
+																				UNOP: IsNil
+																					UNOP: #
+																						list
+																			Then branch:
+																				UNOP: print
+																					UNOP: !
+																						list
+																			Else Branch:
+																				Let hd
+																				VAL
+																					UNOP: !
+																						list
+																				BODY
+																					Let tl
+																					VAL
+																						UNOP: #
+																							list
+																					BODY
+																						Let _
+																						VAL
+																							UNOP: print
+																								hd
+																						BODY
+																							EXP LIST
+																								printl
+																								tl
+																	BODY
+																		EXP LIST
+																			printl
+																			prList
+
+*****************************************

@@ -1,0 +1,20 @@
+(*1. LET TESTS, expression lists, and literals*)
+let _ = (33 "duck"(identifier) (2+3)+4) in 
+let x = (3+5 = 3) in 
+let y = 3+55 in 
+let _ = lambda z,x. (z+x 9 5) in 
+let _ = lambda z. (z 9) in
+(*2. FUNCTION TESTS*)
+fun f with x = x in 
+fun y with z,y,b,s = z+y+b+s in
+fun z with hello,bye = hello+bye in 
+let _ = lambda x,y,s,z,y. (z+x 9 3) in
+(*3. NESTED IF THEN ELSE STATMENTS*)
+let _ = if (if 3 then (if 2 then 4 else 5) else 5) then 4 else 5 in
+(*4. BINARY OPERATIONS*)
+let _ = 
+(3+4+5 3-4-5 3*4*5 3/4/5 3&4&5 3|4|5 3=4=5 3<>4<>5 3<4<5 3<=4<=5 3>4>5 3>=4>=5) in 
+(*5. UNARY OPERATIONS*)
+let _ =
+(readInt readString Nil isNil hello@hi@bye !x@y #x@y !x #y)
+in 0
